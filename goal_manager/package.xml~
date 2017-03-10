@@ -1,0 +1,27 @@
+<package>
+  <name>goal_manager</name>
+  <version>0.1.1</version>
+  <description>Goal manager for the robot
+  </description>
+  <maintainer email="adr.arroyo.perez@gmail.com">Adrian Arroyo</maintainer>
+  <license>BSD</license>
+
+  <author email="adr.arroyo.perez@gmail.com">Adrian Arroyo</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+
+  <run_depend>roscpp</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>message_runtime</run_depend>
+  
+  <!--run_depend>rgbd_launch</run_depend>
+  <run_depend>depth_image_proc</run_depend>
+  <run_depend>image_proc</run_depend>
+  <run_depend>nodelet</run_depend>
+  <run_depend>openni2_camera</run_depend>
+  <run_depend>tf</run_depend-->
+
+</package>
