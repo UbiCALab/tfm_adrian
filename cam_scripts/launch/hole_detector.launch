@@ -1,0 +1,11 @@
+<launch>
+
+    <node name="hole_detector" pkg="cam_scripts" type="hole_detector" output="screen" >
+        <param name="obstacle_height" type="double" value="0.2" />
+        <param name="obstacle_distance" type="double" value="3.2" />
+        <param name="minimum_height" type="double" value="-0.1" />
+        <!--param name="projection_out" type="str" value="$(find cam_scripts)/launch/ground_projection.txt"/-->
+        <param name="projection_in" type="str" textfile="$(find cam_scripts)/launch/ground_projection.txt" />
+    </node>
+
+</launch>
