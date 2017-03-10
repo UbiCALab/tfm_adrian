@@ -1,0 +1,4 @@
+bool writePose
+string argument
+---
+bool ok

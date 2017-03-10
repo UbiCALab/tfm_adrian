@@ -1,0 +1,12 @@
+# Define the goal
+float32 x
+float32 y
+float32 o
+---
+# Define the result
+float32 x
+float32 y
+float32 o
+---
+# Define a feedback message
+float32 percent_complete
