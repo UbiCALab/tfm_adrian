@@ -1,0 +1,120 @@
+<!--@author: Adrian Arroyo Perez: adr.arroyo.perez@gmail.com-->
+<!--Configuration: 3D map and 2D map from camera's depth using 2 cameras
+	LOOK FOR @change TO CONFIGURATE THE SETUP-->
+
+<launch>
+	<arg name="rviz"       default="true" />
+	<arg name="rtabmapviz" default="false" /> 
+
+	<!-- ODOMETRY MAIN ARGUMENTS: 
+        -"strategy"        : Strategy: 0=Frame-to-Map 1=Frame-to-Frame
+        -"feature"         : Feature type: 0=SURF 1=SIFT 2=ORB 3=FAST/FREAK 4=FAST/BRIEF 5=GFTT/FREAK 6=GFTT/BRIEF 7=BRISK
+        -"nn"              : Nearest neighbor strategy : 0=Linear, 1=FLANN_KDTREE, 2=FLANN_LSH, 3=BRUTEFORCE 
+                             Set to 1 for float descriptor like SIFT/SURF                  
+                             Set to 3 for binary descriptor like ORB/FREAK/BRIEF/BRISK  
+        -"max_depth"       : Maximum features depth (m)  
+        -"min_inliers"     : Minimum visual correspondences to accept a transformation (m)  
+        -"inlier_distance" : RANSAC maximum inliers distance (m)  
+        -"local_map"       : Local map size: number of unique features to keep track 
+        -"odom_info_data"  : Fill odometry info messages with inliers/outliers data.
+    	-->
+	
+	<arg name="wait_for_transform" default="true" />
+	<arg name="visual_odometry"         default="false"/>    
+  	<arg name="odom_topic"              default="odom"/>  
+
+	
+	<!--@change Remap to the correct cameras topics-->
+	<group ns="camera1">
+		<!--The nodelet needs a manager-->
+		<node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager" output="screen" />
+		<node pkg="nodelet" type="nodelet" name="rgbd_sync" args="load rtabmap_ros/rgbd_sync nodelet_manager" output="screen">
+			<!--@change Remap to the correct cameras topics-->
+		      <remap from="rgb/image"       to="/camera_front/rgb/image_raw"/>
+		      <remap from="depth/image"     to="/camera_front/depth/image_raw"/>
+		      <remap from="rgb/camera_info" to="/camera_front/rgb/camera_info"/>
+		</node>
+	</group>
+	<group ns="camera2">
+		<!--The nodelet needs a manager-->
+		<node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager" output="screen" />
+		<node pkg="nodelet" type="nodelet" name="rgbd_sync" args="load rtabmap_ros/rgbd_sync nodelet_manager" output="screen">
+			<!--@change Remap to the correct cameras topics-->
+		      <remap from="rgb/image"       to="/camera_back/rgb/image_raw"/>
+		      <remap from="depth/image"     to="/camera_back/depth/image_raw"/>
+		      <remap from="rgb/camera_info" to="/camera_back/rgb/camera_info"/>
+		</node>
+	</group>
+
+	<!--Node for aggregating pointclouds-->
+	<node name="point_cloud_aggregator" pkg="nodelet" type="nodelet" args="standalone rtabmap_ros/point_cloud_aggregator">
+		<!--@change Remap to the correct cameras topics-->
+		<remap from="cloud1" to="/camera_front/depth/points"/>
+		<remap from="cloud2" to="/camera_back/depth/points"/>
+	</node> 
+
+	<!--Manager for voxel filter-->
+	<node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
+
+	<!-- Run a VoxelGrid filter to clean NaNs and downsample the data -->
+	  <node pkg="nodelet" type="nodelet" name="voxel_grid" args="load pcl/VoxelGrid pcl_manager" output="screen">
+	    <remap from="~input" to="/combined_cloud" />
+<rosparam>
+filter_field_name: z
+filter_limit_min: 0.01
+filter_limit_max: 3
+filter_limit_negative: false
+leaf_size: 0.1
+</rosparam>
+	  </node> 
+
+	<group ns="rtabmap">
+		<!-- Visual SLAM (robot side) -->
+		<node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="--delete_db_on_start">
+			<!--Params-->
+			<!--Mandatory for this configuration-->
+			<param name="subscribe_rgbd" type="bool" value="true"/>
+		      	<param name="rgbd_cameras"    type="int"    value="2"/>
+			<param name="subscribe_scan_cloud" type="bool" value="true"/>
+			<param name="subscribe_scan" type="bool" value="false"/>
+			<!--@change set correct frame_id-->
+			<param name="frame_id"         type="string" value="base_link"/>
+			<param name="gen_scan"         type="bool"   value="false"/>
+			<param name="wait_for_transform" type="bool" value="$(arg wait_for_transform)"/>
+			<param name="Reg/Strategy"              type="string" value="1"/> <!-- 1=ICP-->
+			<param name="RGBD/ProximityBySpace"     type="string" value="true"/>
+		  	<param name="queue_size" type="int" value="20"/>
+			<!--Must be false in order to generate cloud_map from scan_cloud-->
+			<param name="Grid/FromDepth" type="string" value="false"/>
+			<param name="Grid/3D" type="string" value="true"/>
+			<param name="RGBD/NeighborLinkRefining" type="string" value="true"/>
+			<!--Defaults-->
+		  	<param name="RGBD/AngularUpdate"        type="string" value="0.01"/>
+		  	<param name="RGBD/LinearUpdate"         type="string" value="0.01"/>
+		  	<param name="Reg/Force3DoF"          	type="string" value="true"/>
+		  	<param name="Reg/Force3DoF"             type="string" value="true"/>
+		  	<param name="Vis/MinInliers"            type="string" value="5"/>
+		  	<param name="Vis/InlierDistance"        type="string" value="0.01"/>
+		  	<param name="Rtabmap/TimeThr"           type="string" value="700"/>
+		  	<param name="Mem/RehearsalSimilarity"   type="string" value="0.45"/>
+			
+			<!--Remaps-->
+			<!--@change Remap to the correct scan topic - although here it is not used, you can see it on rviz-->
+			<remap from="scan" to="/hokuyo/scan"/>
+			<!--@change Remap to the correct odometry topic-->
+			<remap from="odom" to="/rb1/mobile_base_controller/odom"/>
+			<remap from="scan_cloud" 	to="/voxel_grid/output"/>
+			<!--@change Remap to the correct cameras topics-->
+		 	<remap from="rgbd_image0"       to="/camera1/rgbd_image"/>
+			<remap from="rgbd_image1" 	to="/camera2/rgbd_image"/>
+		</node>
+	</group>
+
+	<!-- Visualisation RTAB-Map - NEEDS CONFIG -->
+	<node if="$(arg rtabmapviz)" pkg="rtabmap_ros" type="rtabmapviz" name="rtabmapviz" args="-d $(find rtabmap_ros)/launch/config/rgbd_gui.ini" output="screen"/>
+
+	<!-- Visualization RVIZ -->
+	<arg name="rviz_cfg"                default="" />
+	<node  if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="$(arg rviz_cfg)"/>
+
+</launch>
