@@ -64,7 +64,7 @@ filter_field_name: z
 filter_limit_min: 0.01
 filter_limit_max: 3
 filter_limit_negative: false
-leaf_size: 0.1
+leaf_size: 0.09
 </rosparam>
 	  </node> 
 
@@ -88,15 +88,33 @@ leaf_size: 0.1
 			<param name="Grid/FromDepth" type="string" value="false"/>
 			<param name="Grid/3D" type="string" value="true"/>
 			<param name="RGBD/NeighborLinkRefining" type="string" value="true"/>
-			<!--Defaults-->
+
+			<!--Parameters to improve the quality-->
+			<param name="Rtabmap/DetectionRate"        type="string" value="1"/>
+			<param name="Rtabmap/LoopThr"        type="string" value="0.11"/>
+			<param name="Rtabmap/LoopRatio"        type="string" value="0"/>
+		  	<param name="Rtabmap/TimeThr"           type="string" value="700"/>
+
+			<param name="Mem/LoopThr"        type="string" value="0.11"/>
+		  	<param name="Mem/RehearsalSimilarity"   type="string" value="0.45"/>
+		  	<param name="Mem/ImagePredecimation"   type="string" value="1"/>
+		  	<param name="Mem/ImagePostDecimation"   type="string" value="1"/>
+
 		  	<param name="RGBD/AngularUpdate"        type="string" value="0.01"/>
 		  	<param name="RGBD/LinearUpdate"         type="string" value="0.01"/>
+		  	<param name="RGBD/OptimizeFromGraphEnd"         type="string" value="false"/>
+		  	<param name="RGBD/ProximityByTime"         type="string" value="false"/>
+
 		  	<param name="Reg/Force3DoF"          	type="string" value="true"/>
 		  	<param name="Reg/Force3DoF"             type="string" value="true"/>
-		  	<param name="Vis/MinInliers"            type="string" value="5"/>
-		  	<param name="Vis/InlierDistance"        type="string" value="0.01"/>
-		  	<param name="Rtabmap/TimeThr"           type="string" value="700"/>
-		  	<param name="Mem/RehearsalSimilarity"   type="string" value="0.45"/>
+
+		  	<param name="Vis/MinInliers"            type="string" value="20"/>
+		  	<param name="Vis/InlierDistance"        type="string" value="0.1"/>
+
+
+		  	<param name="Icp/MaxTranslation"        type="string" value="0.2"/>
+		  	<param name="Icp/MaxRotation"        type="string" value="0.78"/>
+		  	<param name="Icp/VoxelSize"        type="string" value="0.0"/>
 			
 			<!--Remaps-->
 			<!--@change Remap to the correct scan topic - although here it is not used, you can see it on rviz-->
