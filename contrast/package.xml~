@@ -1,0 +1,28 @@
+<package>
+  <name>contrast_augmenter</name>
+  <version>0.1.1</version>
+  <description>
+    Exploration node for the AdvanRobot200.
+  </description>
+  <maintainer email="adr.arroyo.perez@gmail.com">Adrian Arroyo</maintainer>
+  <license>BSD</license>
+  <author email="adr.arroyo.perez@gmail.com">Adrian Arroyo</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>image_transport</build_depend>
+
+  <run_depend>roscpp</run_depend>
+  <run_depend>std_msgs</run_depend>
+
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>cv_bridge</run_depend>
+  <run_depend>image_transport</run_depend>
+  
+
+</package>
